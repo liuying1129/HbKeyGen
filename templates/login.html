@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<style>
+			.area {
+				margin: 20px auto 0px auto;
+			}
+			
+			.mui-input-group {
+				margin-top: 10px;
+			}
+			
+			.mui-input-group:first-child {
+				margin-top: 20px;
+			}
+			
+			.mui-input-group label {
+				width: 22%;
+			}
+			
+			.mui-input-row label~input,
+			.mui-input-row label~select,
+			.mui-input-row label~textarea {
+				width: 78%;
+			}
+			
+			.mui-checkbox input[type=checkbox],
+			.mui-radio input[type=radio] {
+				top: 6px;
+			}
+			
+			.mui-content-padded {
+				margin-top: 25px;
+			}
+			
+			.mui-btn {
+				padding: 10px;
+			}
+			
+			.link-area {
+				display: block;
+				margin-top: 25px;
+				text-align: center;
+			}
+			
+			.spliter {
+				color: #bbb;
+				padding: 0px 8px;
+			}
+			
+			.oauth-area {
+				position: absolute;
+				bottom: 20px;
+				left: 0px;
+				text-align: center;
+				width: 100%;
+				padding: 0px;
+				margin: 0px;
+			}
+			
+			.oauth-area .oauth-btn {
+				display: inline-block;
+				width: 50px;
+				height: 50px;
+				background-size: 30px 30px;
+				background-position: center center;
+				background-repeat: no-repeat;
+				margin: 0px 20px;
+				/*-webkit-filter: grayscale(100%); */
+				border: solid 1px #ddd;
+				border-radius: 25px;
+			}
+			
+			.oauth-area .oauth-btn:active {
+				border: solid 1px #aaa;
+			}
+			
+			.oauth-area .oauth-btn.disabled {
+				background-color: #ddd;
+			}
+		</style>
+
+	    <!-- RSA非对称加密算法 -->
+	    <script src="../libs/Barrett.js"></script>
+	    <script src="../libs/BigInt.js"></script>
+	    <script src="../libs/RSA.js"></script>
+	    
+    	<!-- MD5 -->
+    	<script src="../libs/md5-min.js"></script>
+
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">登录</h1>
+		</header>
+		<div class="mui-content">
+			<form id='login-form' class="mui-input-group">
+				<div class="mui-input-row">
+					<label>账号</label>
+					<input id='account' type="text" class="mui-input-clear mui-input" placeholder="请输入账号">
+				</div>
+				<div class="mui-input-row">
+					<label>密码</label>
+					<input id='password' type="password" class="mui-input-clear mui-input" placeholder="请输入密码">
+				</div>
+			</form>
+
+			<div class="mui-content-padded">
+				<button id='login' class="mui-btn mui-btn-block mui-btn-primary">登录</button>
+
+			</div>
+			<div class="mui-content-padded oauth-area">
+
+			</div>
+		</div>
+		
+		<script src="../js/mui.min.js"></script>
+
+		<script>
+		
+	    	function make_sign(params,token){
+	    		//生成签名sign
+			    var sort_params="";   
+			    var sort_keys=Object.keys(params).sort();   
+			    for(var sk in sort_keys){                     
+			    	if(!params[sort_keys[sk]])continue;
+			    	if(typeof params[sort_keys[sk]].valueOf()=='string' && params[sort_keys[sk]].length<=0)continue;
+			    	sort_params = sort_params + sort_keys[sk] + params[sort_keys[sk]];
+			 		}		
+			 		//计算md5之前确保接口与接入方的字符串编码一致
+			 		//utf-8编码
+			 		sort_params = encodeURI(sort_params);
+			 		sort_params = sort_params.replace(/%20/g,'+');
+			 		sort_params = sort_params.replace(/!/g,'%21');
+			 		sort_params = sort_params.replace(/'/g,'%27');
+			 		sort_params = sort_params.replace(/\(/g,'%28');
+			 		sort_params = sort_params.replace(/\)/g,'%29');
+			 		sort_params = sort_params.replace(/:/g,'%3A');
+			 		sort_params = sort_params.replace(/=/g,'%3D');
+			 		sort_params = sort_params.replace(/~/g,'%7E');
+			 		var sign;
+			 		if(token && typeof token=='string' && token.length>0){
+			 			sign = hex_md5(token+sort_params);
+			 		}else{
+			 			sign = hex_md5(sort_params);
+			 		}
+			    sort_params = null;
+			    
+			    return sign;
+	    	}    	
+		
+			(function($, doc) {
+												  					
+					var url = 'http://211.97.0.5:8080/YkAPI/service';
+					
+					var data = {
+						    methodNum:'rsa'
+					};
+					
+  					var rsaPubKey;
+  					
+					mui.ajax(url,{
+						data:data,
+						dataType:'json',//服务器返回json格式数据
+						type:'post',//HTTP请求类型
+						timeout:10000,//超时时间设置为10秒；
+						success:function(data){
+							//服务器返回响应，根据响应结果，分析是否登录成功；
+							alert("exponent:"+data.response.exponent);
+							alert("modulus:"+data.response.modulus);
+							setMaxDigits(131);
+      						rsaPubKey = new RSAKeyPair(data.response.exponent, "", data.response.modulus);
+						},
+						error:function(xhr,type,errorThrown){
+							//异常处理；
+							console.log(type);
+						}
+					});
+									
+				$.init({
+					statusBarBackground: '#f7f7f7'
+				});
+			
+				
+				var ajax = function() {
+					
+					//alert("登录");
+					
+					var account = document.getElementById("account").value;	
+					var password = document.getElementById("password").value;	
+
+					if (!account || "" == account) {
+				    	alert("账号不能为空。");
+				        return;
+				    }
+			
+			    if(!password || password == '') password = '';
+			        
+			    var requestPwd = encryptedString(rsaPubKey,password);				
+					
+					var url = 'http://211.97.0.5:8080/YkAPI/service';
+					
+					var data = {
+				        methodNum:"login",
+				        userId:account,
+				        passWord:requestPwd,
+				        aa:"中国"
+					};
+    				data.sign = make_sign(data,null);
+								    
+					mui.ajax(url,{
+						data:data,
+						dataType:'json',//服务器返回json格式数据
+						type:'get',//HTTP请求类型
+						timeout:10000,//超时时间设置为10秒；
+
+						success:function(data){
+							//服务器返回响应，根据响应结果，分析是否登录成功；
+							alert("token:"+data.response.token);
+
+				            window.localStorage.setItem('token', data.response.token);
+			     	        window.localStorage.setItem('userId', account);
+			     	        
+							mui.openWindow({
+								id: 'id222',
+								url: '../index.html'
+							});			     	        
+						},
+						error:function(xhr,type,errorThrown){
+							//异常处理；
+							console.log(type);
+						}
+					});
+					
+
+				};				
+				
+				//发送请求按钮的点击事件
+				document.getElementById("login").addEventListener('tap', function() {
+						ajax();
+				});
+				
+			}(mui, document));
+		</script>
+	</body>
+
+</html>
