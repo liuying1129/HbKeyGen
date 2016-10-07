@@ -155,98 +155,87 @@
 			    return sign;
 	    	}    	
 		
-			(function($, doc) {
+			mui.init();
 												  					
-					var url = 'http://211.97.0.5:8080/YkAPI/service';
+			var url = 'http://211.97.0.5:8080/YkAPI/service';
 					
-					var data = {
-						    methodNum:'rsa'
-					};
-					
-  					var rsaPubKey;
-  					
-					mui.ajax(url,{
-						data:data,
-						dataType:'json',//服务器返回json格式数据
-						type:'post',//HTTP请求类型
-						timeout:10000,//超时时间设置为10秒；
-						success:function(data){
-							//服务器返回响应，根据响应结果，分析是否登录成功；
-							alert("exponent:"+data.response.exponent);
-							alert("modulus:"+data.response.modulus);
-							setMaxDigits(131);
-      						rsaPubKey = new RSAKeyPair(data.response.exponent, "", data.response.modulus);
-						},
-						error:function(xhr,type,errorThrown){
-							//异常处理；
-							console.log(type);
-						}
-					});
-									
-				$.init({
-					statusBarBackground: '#f7f7f7'
-				});
+			var data = {
+				    methodNum:'rsa'
+			};
 			
+			var rsaPubKey;
+			
+			mui.ajax(url,{ 
+				data:data,
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				success:function(data){
+					//服务器返回响应，根据响应结果，分析是否登录成功；
+					//alert("exponent:"+data.response.exponent);
+					//alert("modulus:"+data.response.modulus);
+					setMaxDigits(131);
+					rsaPubKey = new RSAKeyPair(data.response.exponent, "", data.response.modulus);
+				},
+				error:function(xhr,type,errorThrown){
+					console.log(type);
+				}
+			});
+																	
+			var ajax = function() {				
 				
-				var ajax = function() {
-					
-					//alert("登录");
-					
-					var account = document.getElementById("account").value;	
-					var password = document.getElementById("password").value;	
+				var account = document.getElementById("account").value;	
+				var password = document.getElementById("password").value;	
 
-					if (!account || "" == account) {
-				    	alert("账号不能为空。");
-				        return;
-				    }
-			
-			    if(!password || password == '') password = '';
-			        
-			    var requestPwd = encryptedString(rsaPubKey,password);				
-					
-					var url = 'http://211.97.0.5:8080/YkAPI/service';
-					
-					var data = {
-				        methodNum:"login",
-				        userId:account,
-				        passWord:requestPwd,
-				        aa:"中国"
-					};
-    				data.sign = make_sign(data,null);
-								    
-					mui.ajax(url,{
-						data:data,
-						dataType:'json',//服务器返回json格式数据
-						type:'get',//HTTP请求类型
-						timeout:10000,//超时时间设置为10秒；
+				if (!account || "" == account) {
+			    	alert("账号不能为空。");
+			        return;
+			    }
+		
+		    	if(!password || password == '') password = '';
+		        
+		    	var requestPwd = encryptedString(rsaPubKey,password);				
+				
+				var url = 'http://211.97.0.5:8080/YkAPI/service';
+				
+				var data = {
+			        methodNum:"login",
+			        userId:account,
+			        passWord:requestPwd,
+			        aa:"中国"
+				};
+				data.sign = make_sign(data,null);
+							    
+				mui.ajax(url,{
+					data:data,
+					dataType:'json',//服务器返回json格式数据
+					type:'get',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
 
-						success:function(data){
-							//服务器返回响应，根据响应结果，分析是否登录成功；
-							alert("token:"+data.response.token);
+					success:function(data){
+						//服务器返回响应，根据响应结果，分析是否登录成功；
+						//alert("token:"+data.response.token);
 
-				            window.localStorage.setItem('token', data.response.token);
-			     	        window.localStorage.setItem('userId', account);
-			     	        
-							mui.openWindow({
-								id: 'id222',
-								url: '../index.html'
-							});			     	        
-						},
-						error:function(xhr,type,errorThrown){
-							//异常处理；
-							console.log(type);
-						}
-					});
-					
-
-				};				
+			            window.localStorage.setItem('token', data.response.token);
+		     	        window.localStorage.setItem('userId', account);
+		     	        
+						mui.openWindow({
+							id: 'id222',
+							url: '../index.html'
+						});
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						console.log(type);
+					}
+				});
+			};				
 				
 				//发送请求按钮的点击事件
-				document.getElementById("login").addEventListener('tap', function() {
-						ajax();
-				});
-				
-			}(mui, document));
+			document.getElementById("login").addEventListener('tap', function() {
+					ajax();
+			});
+			
 		</script>
 	</body>
 

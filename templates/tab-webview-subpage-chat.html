@@ -37,16 +37,14 @@
 					<!--<li class="mui-table-view-cell"><a href="" class="mui-navigate-right">Item 20</a></li>-->
 				</ul>
 			<!--</div>
-		</div>-->
-		
-		<script>
-			mui.init({
-				swipeBack: false
-			});
-		</script>
+		</div>-->		
 		
 	    <script>
 	    
+			mui.init({
+				swipeBack: false
+			});
+			
 	        //SmsInfo存放一条短信的各项内容
     		var SmsInfo = {};
     		
@@ -87,24 +85,31 @@
 						
 						var li = document.createElement('li');
 						li.className = 'mui-table-view-cell';
+						li.setAttribute("attr_address",SmsInfo.PhoneNumber);
+						li.setAttribute("attr_body",SmsInfo.Smsbody);
 						li.innerHTML = '<a class="mui-navigate-right">' + SmsInfo.PhoneNumber +'<br />'+ SmsInfo.Smsbody + '</a>';
-						
-						li.addEventListener('tap', function(e) {
-							
-							mui.openWindow({
-								id: 'id111',
-								url: 'ajax.html',
-								extras:{
-        							smsAddress:SmsInfo.PhoneNumber,
-        							smsBody:SmsInfo.Smsbody
-    							}
-							});
-						});		
-						
+																		
 						table.appendChild(li);
 					}
 					cusor.close();
-				}		   		
+				}
+				
+				mui(".mui-table-view").on('tap','.mui-table-view-cell',function(){
+				    //获取id
+				    var attr_address = this.getAttribute("attr_address");
+				    var attr_body = this.getAttribute("attr_body");
+				  
+				    //打开详情
+				    mui.openWindow({
+						id: 'id111',
+						url: 'ajax.html',
+						extras:{
+							smsAddress:attr_address,
+							smsBody:attr_body
+						}
+				    });				  
+				});						
+				
 	   		});	   		 		
 	   		
 		</script>

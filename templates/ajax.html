@@ -35,49 +35,52 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<button id="send" class="mui-btn mui-btn-blue mui-btn-link mui-pull-right">编辑</button>
 			<h1 class="mui-title">短信详情</h1>
 		</header>
 		<div class="mui-content">
 			
-					<div class="mui-input-row">
-						<label>Input</label>
-						<input id="text" type="text" class="mui-input-clear" placeholder="带清除按钮的输入框">
-					</div>
-				<div class="mui-input-row" style="margin: 10px 5px;">
-					<textarea id="textarea" rows="5" placeholder="多行文本框"></textarea>
-				</div>
-				
-		        <!--<button id="des" type="button" class="mui-btn mui-btn-success mui-btn-block">加密</button>
-				-->
-			
-			<div class="mui-content-padded" style="padding-bottom: 50px;">
-				<p style="text-indent: 22px;">
-					mui基于html5plus的<a href="http://www.dcloud.io/docs/api/zh_cn/xhr.shtml">XMLHttpRequest</a>，封装了常用的ajax函数，支持Get、Post请求方式， 支持返回json、xml、html、text、script数据类型；本示例使用<a href="http://www.oschina.net/question/82993_78609">RunJS</a>的Echo Ajax功能演示网络请求。
-				</p>
-				<h4 class="mui-content-padded">发送请求：</h4>
-				<div class="mui-input-group">
-					<div class="mui-input-row">
-						<label>type:</label>
-						<select id="method">
-							<option value="get">GET</option>
-							<option value="post">POST</option>
-						</select>
-					</div>
-					<div class="mui-input-row">
-						<label>dataType:</label>
-						<select id="dataType">
-							<option value="html">HTML</option>
-							<option value="json">JSON</option>
-							<option value="xml">XML</option>
-						</select>
-					</div>
-					<div class="mui-button-row">
-						<button type="button" id="confirm" class="mui-btn mui-btn-primary">发送请求</button>
-					</div>
-				</div>
-				<h4 class="mui-content-padded">获得响应：</h4>
-				<code id="response"></code>
+			<div class="mui-input-row">
+				<label>Input</label>
+				<input id="text" type="text" class="mui-input-clear" placeholder="带清除按钮的输入框">
 			</div>
+			<div class="mui-input-row" style="margin: 10px 5px;">
+				<textarea id="textarea" rows="5" placeholder="多行文本框"></textarea>
+			</div>
+			
+		
+			<div class="mui-button-row">
+				<button type="button" id="confirm" class="mui-btn mui-btn-primary">加密</button>
+			</div>
+			
+			<h5 class="mui-content-padded">选择发送类型</h5>
+			<ul class="mui-table-view mui-table-view-radio">
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						授权
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-selected">
+					<a class="mui-navigate-right">
+						注册
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						接口
+					</a>
+				</li>
+			</ul>
+			
+			<div class="mui-content-padded">
+				<p id="info"></p>
+			</div>			
+			
+			<h4 class="mui-content-padded">获得响应：</h4>
+			<code id="response"></code>
+			
+			<a id="send_href" href="sms:18127880170?body=send info">send</a>
+			
 		</div>
 		<script src="../js/mui.min.js"></script>		
 		
@@ -112,121 +115,89 @@
 			    sort_params = null;
 			    
 			    return sign;
-	    	}    	
-		
-		
+	    	}
+	    	
+	    	mui.init();
+				
+			var text = document.getElementById("text");
+			var textarea = document.getElementById("textarea");
+			var response = document.getElementById("response");
+			
 	   		document.addEventListener('plusready', function(){
 				var self = plus.webview.currentWebview();
 				
-				var text = document.getElementById("text");
-				var textarea = document.getElementById("textarea");
+				//通过openWindow方法的extras属性传过来的
 				text.value = self.smsAddress;
 				textarea.value = self.smsBody;
 	   		});	   		 		
 		
-			(function($) {
-				$.init({
-					swipeBack:true //启用右滑关闭功能
+			var network = true;
+			if(mui.os.plus){
+				mui.plusReady(function () {
+					if(plus.networkinfo.getCurrentType()==plus.networkinfo.CONNECTION_NONE){
+						network = false;
+					}
 				});
+			}
+			
+			//设置全局beforeSend
+			mui.ajaxSettings.beforeSend = function(xhr, setting) {
+				//beforeSend演示,也可在$.ajax({beforeSend:function(){}})中设置单个Ajax的beforeSend
+				console.log('beforeSend:::' + JSON.stringify(setting));
+			};
+			//设置全局complete
+			mui.ajaxSettings.complete = function(xhr, status) {
+				console.log('complete:::' + status);
+			}
+			
+			var ajax = function() {
 				
-				var network = true;
-				if(mui.os.plus){
-					mui.plusReady(function () {
-						if(plus.networkinfo.getCurrentType()==plus.networkinfo.CONNECTION_NONE){
-							network = false;
-						}
-					});
-				}
-								
-				var methodEl = document.getElementById("method");
-				var dataTypeEl = document.getElementById("dataType");
-				var respnoseEl = document.getElementById("response");
-				//成功响应的回调函数
-				var success = function(response) {
-					var dataType = dataTypeEl.value;
-					if (dataType === 'json') {
-						response = JSON.stringify(response);
-					} else if (dataType === 'xml') {
-						response = new XMLSerializer().serializeToString(response).replace(/</g, "&lt;").replace(/>/g, "&gt;");
-					}
-					respnoseEl.innerHTML = response;
+				var url = 'http://211.97.0.5:8080/YkAPI/service';
+				
+				var data = {
+				    methodNum:'AIF016',
+				    source:textarea.value,
+				    key:"lc"
 				};
-				//设置全局beforeSend
-				$.ajaxSettings.beforeSend = function(xhr, setting) {
-					//beforeSend演示,也可在$.ajax({beforeSend:function(){}})中设置单个Ajax的beforeSend
-					console.log('beforeSend:::' + JSON.stringify(setting));
-				};
-				//设置全局complete
-				$.ajaxSettings.complete = function(xhr, status) {
-					console.log('complete:::' + status);
-				}
-				var ajax = function() {
-					
-					var url = 'http://211.97.0.5:8080/YkAPI/service';
-					
-					var data = {
-						    methodNum:'AIF016',
-						    source:(("虚拟医院")),
-						    key:"lc"
-					};
-    				data.sign = make_sign(data,window.localStorage.getItem('token'));
-					
-					mui.ajax(url,{
-						data:data,
-						//dataType:'json',//服务器返回json格式数据
-						type:'get',//HTTP请求类型
-						timeout:10000,//超时时间设置为10秒；
-						headers:{
-							//'Content-Type':'application/json'
-							'X-Access-Token': window.localStorage.getItem('token')
-						},
-						success:success
-						//error:function(xhr,type,errorThrown){
-							//异常处理；
-						//	console.log(type);
-						//}
-					});
-					
-					//利用RunJS的Echo Ajax功能测试
-					//请求方式，默认为Get；
-					//预期服务器范围的数据类型
-					//var dataType = dataTypeEl.value;
-					//发送数据
-    				//alert("token:"+window.localStorage.getItem('token'))
-    				//
-					//url = url + (dataType === 'html' ? 'text' : dataType);
-					respnoseEl.innerHTML = '正在请求中...';
-//					if (type === 'get') {
-//						if (dataType === 'json') {
-//							$.getJSON(url, data, success);
-//						} else {
-//							$.get(url, data, success, dataType);
-//						}
-//					} else if (type === 'post') {
-					//	$.post(url, data, success, dataType);
-					//}
-				};
-				//发送请求按钮的点击事件
-				document.getElementById("confirm").addEventListener('tap', function() {
-					if(network){
-						ajax();
-					}else{
-						mui.toast("当前网络不给力，请稍后再试");
+				data.sign = make_sign(data,window.localStorage.getItem('token'));
+				
+				mui.ajax(url,{
+					data:data,
+					dataType:'json',//服务器返回json格式数据
+					type:'get',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					headers:{
+						'X-Access-Token': window.localStorage.getItem('token')
+					},
+					success:function(data){
+						//alert(data);
+						response.innerHTML=data.response.enCryptStr;
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						console.log(type);
 					}
 				});
-				//点击描述中链接时，打开对应网页介绍；
-				$('body').on('tap', 'a', function(e) {
-					var href = this.getAttribute('href');
-					if (href) {
-						if (window.plus) {
-							plus.runtime.openURL(href);
-						} else {
-							location.href = href;
-						}
-					}
-				});
-			})(mui);
-					   		 		
+			};
+			
+			//发送请求按钮的点击事件
+			document.getElementById("confirm").addEventListener('tap', function() {
+				if(network){
+					ajax();
+				}else{
+					mui.toast("当前网络不给力，请稍后再试");
+				}
+			});
+			
+			var info = document.getElementById("info");
+			document.querySelector('.mui-table-view.mui-table-view-radio').addEventListener('selected',function(e){
+				info.innerHTML = "当前选中的为："+e.detail.el.innerText;
+			});
+			
+			document.getElementById('send').addEventListener('tap', function() {
+
+			});			
+			
 						
 		</script>
 	</body>

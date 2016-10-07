@@ -294,6 +294,20 @@
 					"index.html"
 				],
 				"priority": 0
+			},
+			"login.html": {
+				"resources": [
+					"js/mui.min.js",
+					"libs/md5-min.js",
+					"libs/RSA.js",
+					"libs/BigInt.js",
+					"css/mui.min.css",
+					"libs/Barrett.js"
+				],
+				"refer": [
+					"index.html"
+				],
+				"priority": 0
 			}
 		},
 		"idle": {
