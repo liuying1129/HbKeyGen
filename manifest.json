@@ -275,7 +275,8 @@
 					"js/mui.min.js",
 					"fonts/mui.ttf",
 					"css/mui.min.css",
-					"libs/md5-min.js"
+					"libs/md5-min.js",
+					"js/make_sign.js"
 				],
 				"refer": [],
 				"priority": 0
@@ -288,7 +289,8 @@
 					"css/mui.min.css",
 					"libs/Barrett.js",
 					"fonts/mui.ttf",
-					"libs/md5-min.js"
+					"libs/md5-min.js",
+					"js/make_sign.js"
 				],
 				"refer": [
 					"index.html"
