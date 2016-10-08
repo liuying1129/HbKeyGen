@@ -29,6 +29,17 @@
 		
     	<!-- MD5 -->
     	<script src="../libs/md5-min.js"></script>
+    	
+    	<script>
+    		function makeSmsInfo(){
+				var info = document.getElementById("info");
+    			var send_href = document.getElementById("send_href");
+    			var text = document.getElementById("text");
+    			var response = document.getElementById("response");
+    			alert("sms:"+text.value+"?body="+info.innerHTML+":"+response.innerHTML);
+    			send_href.href="sms:"+text.value+"?body="+info.innerHTML+":"+response.innerHTML;
+    		}
+    	</script>
 		
 	</head>
 
@@ -79,7 +90,7 @@
 			<h4 class="mui-content-padded">获得响应：</h4>
 			<code id="response"></code>
 			
-			<a id="send_href" href="sms:18127880170?body=send info">send</a>
+			<a id="send_href" onclick="makeSmsInfo()" href="sms:18127880170?body=send info">send</a>
 			
 		</div>
 		<script src="../js/mui.min.js"></script>
@@ -166,13 +177,7 @@
 			var info = document.getElementById("info");
 			document.querySelector('.mui-table-view.mui-table-view-radio').addEventListener('selected',function(e){
 				info.innerHTML = "当前选中的为："+e.detail.el.innerText;
-			});
-			
-			document.getElementById('send').addEventListener('tap', function() {
-
-			});			
-			
-						
+			});						
 		</script>
 	</body>
 
