@@ -29,15 +29,29 @@
 		
     	<!-- MD5 -->
     	<script src="../libs/md5-min.js"></script>
-    	
-    	<script>
-    		function makeSmsInfo(){
-				var info = document.getElementById("info");
-    			var send_href = document.getElementById("send_href");
+    	   	
+    	<script>    	
+    		function makeSmsInfo(el){
+    			//var send_href = document.getElementById("send_href");
     			var text = document.getElementById("text");
+				var textarea = document.getElementById("textarea");
     			var response = document.getElementById("response");
-    			alert("sms:"+text.value+"?body="+info.innerHTML+":"+response.innerHTML);
-    			send_href.href="sms:"+text.value+"?body="+info.innerHTML+":"+response.innerHTML;
+    			var elem = document.querySelector('.mui-table-view-radio .mui-selected');
+    			
+    			//保存到localStorage start
+	    		var time = new Date();
+	    		var frmtTime = time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+" "+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"."+time.getMilliseconds();
+
+    			var smsObj = {
+	    			telNo : text.value,
+	    			orgRegNo : textarea.value,
+	    			regNo : elem.innerText+":"+response.innerText  				
+    			}; 
+			    window.localStorage.setItem(frmtTime, JSON.stringify(smsObj));
+    			//保存到localStorage stop
+			    
+    			el.href="sms:"+text.value+"?body="+elem.innerText+":"+response.innerText;
+    			   			
     		}
     	</script>
 		
@@ -46,7 +60,10 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<button id="send" class="mui-btn mui-btn-blue mui-btn-link mui-pull-right">编辑</button>
+			<!--<button id="send" class="mui-btn mui-btn-blue mui-btn-link mui-pull-right">发送</button>-->
+			<!--this表示<a>元素对象-->
+			<!--定论:javascript中,this关键字表示该javascript脚本的所有者对象-->
+			<a id="send_href" class="mui-btn mui-btn-link mui-pull-right" onclick="makeSmsInfo(this)">发送</a>
 			<h1 class="mui-title">短信详情</h1>
 		</header>
 		<div class="mui-content">
@@ -58,39 +75,23 @@
 			<div class="mui-input-row" style="margin: 10px 5px;">
 				<textarea id="textarea" rows="5" placeholder="多行文本框"></textarea>
 			</div>
-			
-		
-			<div class="mui-button-row">
-				<button type="button" id="confirm" class="mui-btn mui-btn-primary">加密</button>
-			</div>
-			
+					
+		    <button type="button" id="confirm" class="mui-btn mui-btn-success mui-btn-block">加密</button>
+		    
+			<div id="response"></div>
+						
 			<h5 class="mui-content-padded">选择发送类型</h5>
 			<ul class="mui-table-view mui-table-view-radio">
-				<li class="mui-table-view-cell">
-					<a class="mui-navigate-right">
-						授权
-					</a>
-				</li>
 				<li class="mui-table-view-cell mui-selected">
-					<a class="mui-navigate-right">
-						注册
-					</a>
+					<a class="mui-navigate-right">授权</a>
 				</li>
 				<li class="mui-table-view-cell">
-					<a class="mui-navigate-right">
-						接口
-					</a>
+					<a class="mui-navigate-right">注册</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">接口</a>
 				</li>
 			</ul>
-			
-			<div class="mui-content-padded">
-				<p id="info"></p>
-			</div>			
-			
-			<h4 class="mui-content-padded">获得响应：</h4>
-			<code id="response"></code>
-			
-			<a id="send_href" onclick="makeSmsInfo()" href="sms:18127880170?body=send info">send</a>
 			
 		</div>
 		<script src="../js/mui.min.js"></script>
@@ -156,7 +157,7 @@
 	                    	alert(data.response.errorCode +":"+ data.response.errorMsg);
 	                    	return;
 	                    } 
-						response.innerHTML=data.response.enCryptStr;
+						response.innerText=data.response.enCryptStr;
 					},
 					error:function(xhr,type,errorThrown){
 						//异常处理；
@@ -173,12 +174,9 @@
 					mui.toast("当前网络不给力，请稍后再试");
 				}
 			});
-			
-			var info = document.getElementById("info");
-			document.querySelector('.mui-table-view.mui-table-view-radio').addEventListener('selected',function(e){
-				info.innerHTML = "当前选中的为："+e.detail.el.innerText;
-			});						
+					
 		</script>
+		 
 	</body>
 
 </html>

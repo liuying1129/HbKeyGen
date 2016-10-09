@@ -1,3 +1,6 @@
+/*
+ * 依赖于md5-min.js
+ */
 function make_sign(params,token){
 	//生成签名sign
     var sort_params="";   
