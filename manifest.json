@@ -216,7 +216,9 @@
 				"refer": [
 					"tab-webview-subpage-setting.html",
 					"tab-webview-subpage-chat.html",
-					"tab-webview-subpage-contact.html"
+					"tab-webview-subpage-contact.html",
+					"templates/tab-webview-subpage-smslist.html",
+					"templates/tab-webview-subpage-sent.html"
 				],
 				"priority": 0
 			},
@@ -309,6 +311,24 @@
 				"refer": [
 					"index.html"
 				],
+				"priority": 0
+			},
+			"templates/tab-webview-subpage-smslist.html": {
+				"resources": [],
+				"refer": [
+					"templates/sms-detail.html"
+				],
+				"priority": 0
+			},
+			"templates/sms-detail.html": {
+				"resources": [
+					"js/make_sign.js",
+					"js/mui.min.js",
+					"libs/md5-min.js",
+					"fonts/mui.ttf",
+					"css/mui.min.css"
+				],
+				"refer": [],
 				"priority": 0
 			}
 		},
