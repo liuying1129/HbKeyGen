@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		
+		<link rel="stylesheet" href="../css/mui.min.css">
+		
+		<script src="../js/mui.min.js"></script>
+
+		<style>
+			html,
+			body {
+				background-color: #efeff4;
+			}
+			.title {
+				padding: 20px 15px 10px;
+				color: #6d6d72;
+				font-size: 15px;
+				background-color: #fff;
+			}
+		</style>
+			    
+	</head>
+
+	<body>
+		<!--<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<div class="title">
+					这是webview模式选项卡中的第2个子页面，该页面展示一个支持下拉刷新、上拉加载的消息列表
+				</div>-->
+				<ul class='mui-table-view'>
+					<!--<li class="mui-table-view-cell"><a href="" class="mui-navigate-right">Item 20</a></li>-->
+				</ul>
+			<!--</div>
+		</div>-->		
+		
+	    <script>
+	    
+			mui.init({
+				swipeBack: false
+			});
+			
+	        //SmsInfo存放一条短信的各项内容
+    		var SmsInfo = {};
+    		
+			var table = document.body.querySelector('.mui-table-view');
+    		
+    		//mui.plusReady是对document.addEventListener('plusready',fn)的封装
+    		//mui.plusReady(function(){
+     		//	console.log("当前页面URL："+plus.webview.currentWebview().getURL());
+			//});
+			
+	   		document.addEventListener('plusready', function(){
+	   			
+	   			//console.log("所有plus api都应该在此事件发生后调用，否则会出现plus is undefined。"
+	   			
+	   			var Cursor = plus.android.importClass("android.database.Cursor");
+				var Uri = plus.android.importClass("android.net.Uri");
+				var activity = plus.android.runtimeMainActivity();
+				var uri = Uri.parse("content://sms/inbox");
+				
+				//var projection=new Array("_id","address","person","body","date","type");
+				var cusor = activity.managedQuery(uri,null,null,null,null);//projection//"date desc"
+				//var idColumn = cusor.getColumnIndex("_id");
+				//var nameColumn = cusor.getColumnIndex("person");
+				var phoneNumberColumn = cusor.getColumnIndex("address");
+				var smsbodyColumn = cusor.getColumnIndex("body");
+				//var dateColumn = cusor.getColumnIndex("date");
+				//var typeColumn = cusor.getColumnIndex("type");
+				
+				if(cusor != null){
+					while(cusor.moveToNext()){ 
+						//SmsInfo.id = cusor.getString(idColumn);
+						//SmsInfo.Name = cusor.getInt(nameColumn);
+						//SmsInfo.Date = cusor.getLong(dateColumn);
+						//SmsInfo.Date = new Date(parseInt(SmsInfo.Date));
+						SmsInfo.PhoneNumber = cusor.getString(phoneNumberColumn);
+						SmsInfo.Smsbody = cusor.getString(smsbodyColumn);
+						//SmsInfo.Type = cusor.getString(typeColumn);
+						
+						var li = document.createElement('li');
+						li.className = 'mui-table-view-cell';
+						li.setAttribute("attr_address",SmsInfo.PhoneNumber);
+						li.setAttribute("attr_body",SmsInfo.Smsbody);
+						li.innerHTML = '<a class="mui-navigate-right"><font style="color:red;font-weight:bold;">' + SmsInfo.PhoneNumber +'</font><br />'+ SmsInfo.Smsbody + '</a>';
+																		
+						table.appendChild(li);
+					}
+					cusor.close();
+				}
+				
+				mui(".mui-table-view").on('tap','.mui-table-view-cell',function(){
+				    //获取id
+				    var attr_address = this.getAttribute("attr_address");
+				    var attr_body = this.getAttribute("attr_body");
+				  
+				    //打开详情
+				    mui.openWindow({
+						id: 'id111',
+						url: 'ajax.html',
+						extras:{
+							smsAddress:attr_address,
+							smsBody:attr_body
+						}
+				    });				  
+				});						
+				
+	   		});	   		 		
+	   		
+		</script>
+	</body>
+</html>
